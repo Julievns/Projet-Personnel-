@@ -1,0 +1,191 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Feb 12 18:25:23 2022
+
+@author: julie
+"""
+
+import matplotlib.pyplot as plt
+from ipywidgets import *
+import numpy as np
+import sys
+import taurex.log
+taurex.log.disableLogging()
+
+### --> We load the cross section and cia information.
+# Those are tables characterising the absorption of each species in the atmosphere
+# They depend on wavelengths, temperature and pressure.
+from taurex.cache import OpacityCache,CIACache
+OpacityCache().clear_cache()
+OpacityCache().set_opacity_path('C:/Users/julie/OneDrive/Bureau/Projet/xsec')
+CIACache().set_cia_path('C:/Users/julie/OneDrive/Bureau/Projet/cia')
+
+
+#PLANET
+from taurex.planet import Planet
+#---------------------------------------------PLANET1 CO2 H2O CO------------------------------
+planet= Planet(planet_mass=0.0026, planet_radius= 0.09)
+
+#STAR
+from taurex.stellar import BlackbodyStar
+star = BlackbodyStar(temperature=6000,radius=1,mass=1)
+
+from taurex.temperature import Isothermal
+isothermal = Isothermal(T=735.0)
+
+from taurex.chemistry import TaurexChemistry
+## The option to load an atmospheric file has not been implemented yet.
+## An active gas is a gas for which a xsec is found in the Cache. Otherwise it is set an inactive.
+## The fill gas is used to calculate the total density in the atmosphere
+## For Venus, we need 3.5% N2 and 6.9 ppm He --> ratio= 6.9 /35000= 1.97E-4
+chemistry = TaurexChemistry(fill_gases=['N2', 'He'], ratio=0.0002)
+from taurex.chemistry import ConstantGas
+co2 = ConstantGas('CO2', mix_ratio=0.965) #96.5%
+chemistry.addGas(co2)
+h2o = ConstantGas('H2O', mix_ratio=30E-6) #30ppm
+chemistry.addGas(h2o)
+co = ConstantGas('CO', mix_ratio=30E-6) #30ppm
+chemistry.addGas(co)
+
+
+from taurex.model import TransmissionModel
+tm = TransmissionModel(planet=planet,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry,
+                        star=star,
+                        atm_min_pressure=3e-8,  
+                        atm_max_pressure=9.2e6,  
+                        nlayers=100)
+
+##add absorption contributions
+from taurex.contributions import AbsorptionContribution
+tm.add_contribution(AbsorptionContribution())
+
+
+##add rayleigh contributions
+from taurex.contributions import RayleighContribution
+tm.add_contribution(RayleighContribution())
+
+tm.build()
+res = tm.model()
+
+### --> Let's plot how it looks like:
+native_grid, rprs, tau, _ = res
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl = 10000/native_grid
+
+#---------------------------------------------PLANET2 CO2--------------------------------------
+
+chemistry2 = TaurexChemistry(fill_gases=['N2', 'He'], ratio=0.0002)
+co2 = ConstantGas('CO2', mix_ratio=0.965) #96.5%
+chemistry2.addGas(co2)
+#h2o = ConstantGas('H2O', mix_ratio=30E-6) #30ppm
+#chemistry2.addGas(h2o)
+#co = ConstantGas('CO', mix_ratio=30E-6) #30ppm
+#chemistry2.addGas(co)
+
+
+tm2 = TransmissionModel(planet=planet,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry2,
+                        star=star,
+                        atm_min_pressure=3e-8, 
+                        atm_max_pressure=9.2e6,  
+                        nlayers=100)
+
+
+tm2.add_contribution(AbsorptionContribution())
+
+
+tm2.add_contribution(RayleighContribution())
+
+tm2.build()
+res2 = tm2.model()
+
+### --> Let's plot how it looks like:
+native_grid2, rprs2, tau2, _ = res2
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl2 = 10000/native_grid2
+
+#---------------------------------------------PLANET3 CO2+CO--------------------------------------
+
+chemistry3 = TaurexChemistry(fill_gases=['N2', 'He'], ratio=0.0002)
+co2 = ConstantGas('CO2', mix_ratio=0.965) #96.5%
+chemistry3.addGas(co2)
+#h2o = ConstantGas('H2O', mix_ratio=30E-6) #30ppm
+#chemistry3.addGas(h2o)
+co = ConstantGas('CO', mix_ratio=30E-6) #30ppm
+chemistry3.addGas(co)
+
+
+tm3 = TransmissionModel(planet=planet,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry3,
+                        star=star,
+                        atm_min_pressure=3e-8,  
+                        atm_max_pressure=9.2e6,  
+                        nlayers=100)
+
+
+tm3.add_contribution(AbsorptionContribution())
+
+
+tm3.add_contribution(RayleighContribution())
+
+tm3.build()
+res3 = tm3.model()
+
+### --> Let's plot how it looks like:
+native_grid3, rprs3, tau3, _ = res3
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl3 = 10000/native_grid3
+
+
+#---------------------------------------------PLANET4 CO2+H2O--------------------------------------
+
+chemistry4 = TaurexChemistry(fill_gases=['N2', 'He'], ratio=0.0002)
+co2 = ConstantGas('CO2', mix_ratio=0.965) #96.5%
+chemistry4.addGas(co2)
+h2o = ConstantGas('H2O', mix_ratio=30E-6) #30ppm
+chemistry4.addGas(h2o)
+#co = ConstantGas('CO', mix_ratio=30E-6) #30ppm
+#chemistry4.addGas(co)
+
+
+tm4 = TransmissionModel(planet=planet,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry4,
+                        star=star,
+                        atm_min_pressure=3e-8, 
+                        atm_max_pressure=9.2e6,  
+                        nlayers=100)
+
+
+tm4.add_contribution(AbsorptionContribution())
+
+tm4.add_contribution(RayleighContribution())
+
+tm4.build()
+res4 = tm4.model()
+
+### --> Let's plot how it looks like:
+native_grid4, rprs4, tau4, _ = res4
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl4 = 10000/native_grid4
+
+fig, ax=plt.subplots()
+
+
+ax.plot(native_grid_wl,1-(rprs-rprs4)-0.000055,label="CO",alpha=1, color='darkviolet')
+ax.plot(native_grid_wl,1-(rprs-rprs3)-0.00006,label="H2O",alpha=1, color='deeppink')
+ax.plot(native_grid_wl,1-rprs2 + 0.000015,label="CO2",alpha=1, color='darkorange')
+ax.plot(native_grid_wl,1-rprs,label="CO2+H2O+CO",alpha=1, color='gold')
+
+ax.set_xlabel('Wavelength ($\mu$m)', fontsize = 15)
+ax.set_ylabel('Transmittance', fontsize = 15)
+plt.xticks(fontsize = 15)
+plt.yticks(fontsize = 15)
+ax.set_xlim(0.5, 10)
+#ax.set_ylim(0.999896,0,999925)
+ax.legend(prop={'size': 13})
+plt.show()
