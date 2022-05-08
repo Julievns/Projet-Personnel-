@@ -72,7 +72,6 @@ native_grid_wl = 10000/native_grid
 
 
 #---------------------------------------------Jupiter H2O-------------------------------------------
-jupiter1= Planet(planet_mass=1, planet_radius= 1)
 
 chemistry1 = TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
 #chemistry1.addGas(ConstantGas('H2O',mix_ratio=1e-3))
@@ -80,7 +79,7 @@ chemistry1.addGas(ConstantGas('CH4',mix_ratio=1e-4))
 chemistry1.addGas(ConstantGas('CO2',mix_ratio=1e-6))
 chemistry1.addGas(ConstantGas('CO',mix_ratio=1e-2))
 
-tm1 = TransmissionModel(planet=jupiter1,
+tm1 = TransmissionModel(planet=jupiter,
                         temperature_profile=isothermal,
                         chemistry=chemistry1,
                         star=star,
@@ -102,7 +101,6 @@ native_grid1, rprs1, tau1, _ = res1
 native_grid_wl1 = 10000/native_grid1
 
 #---------------------------------------------Jupiter CH4-------------------------------------------
-jupiter2= Planet(planet_mass=1, planet_radius= 1)
 
 chemistry2= TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
 chemistry2.addGas(ConstantGas('H2O',mix_ratio=1e-3))
@@ -110,7 +108,7 @@ chemistry2.addGas(ConstantGas('H2O',mix_ratio=1e-3))
 chemistry2.addGas(ConstantGas('CO2',mix_ratio=1e-6))
 chemistry2.addGas(ConstantGas('CO',mix_ratio=1e-2))
 
-tm2 = TransmissionModel(planet=jupiter2,
+tm2 = TransmissionModel(planet=jupiter,
                         temperature_profile=isothermal,
                         chemistry=chemistry2,
                         star=star,
@@ -132,8 +130,6 @@ native_grid2, rprs2, tau2, _ = res2
 native_grid_wl2 = 10000/native_grid2
 
 #---------------------------------------------Jupiter CO2-------------------------------------------
-jupiter3= Planet(planet_mass=1, planet_radius= 1)
-
 
 chemistry3= TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
 chemistry3.addGas(ConstantGas('H2O',mix_ratio=1e-3))
@@ -142,7 +138,7 @@ chemistry3.addGas(ConstantGas('CH4',mix_ratio=1e-4))
 chemistry3.addGas(ConstantGas('CO',mix_ratio=1e-2))
 
 
-tm3 = TransmissionModel(planet=jupiter3,
+tm3 = TransmissionModel(planet=jupiter,
                         temperature_profile=isothermal,
                         chemistry=chemistry3,
                         star=star,
@@ -164,7 +160,6 @@ native_grid3, rprs3, tau3, _ = res3
 native_grid_wl3 = 10000/native_grid3
 
 #---------------------------------------------Jupiter CO-------------------------------------------
-jupiter4= Planet(planet_mass=1, planet_radius= 1)
 
 
 chemistry4= TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
@@ -174,7 +169,7 @@ chemistry4.addGas(ConstantGas('CO2',mix_ratio=1e-6))
 #chemistry4.addGas(ConstantGas('CO',mix_ratio=1e-2))
 
 
-tm4 = TransmissionModel(planet=jupiter4,
+tm4 = TransmissionModel(planet=jupiter,
                         temperature_profile=isothermal,
                         chemistry=chemistry4,
                         star=star,
@@ -198,7 +193,6 @@ native_grid_wl4 = 10000/native_grid4
 
 #plot de superposition--------------------------------------------------------------------------------------------------------------------------
 fig, ax=plt.subplots()
-
 
 ax.plot(native_grid_wl4,1-(rprs-rprs4)-0.01018,label="CO",alpha=1, color='#00cfcc')
 ax.plot(native_grid_wl1,1-(rprs-rprs1)-0.01027,label="H2O",alpha=1, color='dodgerblue')
