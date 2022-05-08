@@ -1,0 +1,218 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Feb 20 17:32:59 2022
+
+@author: julie
+"""
+
+
+import matplotlib.pyplot as plt
+plt.rcParams["axes.formatter.useoffset"] = False
+from ipywidgets import *
+import numpy as np
+import sys
+import taurex.log
+taurex.log.disableLogging()
+
+### --> We load the cross section and cia information.
+# Those are tables characterising the absorption of each species in the atmosphere
+# They depend on wavelengths, temperature and pressure.
+from taurex.cache import OpacityCache,CIACache
+OpacityCache().clear_cache()
+OpacityCache().set_opacity_path('C:/Users/julie/OneDrive/Bureau/Projet/xsec')
+CIACache().set_cia_path('C:/Users/julie/OneDrive/Bureau/Projet/cia')
+
+
+from taurex.planet import Planet
+
+#PLANET
+#---------------------------------------------Jupiter-------------------------------------------
+jupiter= Planet(planet_mass=1, planet_radius= 1)
+
+#STAR
+from taurex.stellar import BlackbodyStar
+star = BlackbodyStar(temperature=6000,radius=1,mass=1)
+
+from taurex.temperature import Isothermal
+isothermal = Isothermal(T=138.5)
+
+
+from taurex.chemistry import TaurexChemistry
+from taurex.chemistry import ConstantGas
+#rom taurex.chemistry import TwoLayerGas
+chemistry = TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
+chemistry.addGas(ConstantGas('H2O',mix_ratio=1e-3))
+chemistry.addGas(ConstantGas('CH4',mix_ratio=1e-4))
+chemistry.addGas(ConstantGas('CO2',mix_ratio=1e-6))
+chemistry.addGas(ConstantGas('CO',mix_ratio=1e-2))
+
+from taurex.model import TransmissionModel
+tm = TransmissionModel(planet=jupiter,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry,
+                        star=star,
+                        atm_min_pressure=1e-2,  
+                        atm_max_pressure=1e6, 
+                        nlayers=100)
+
+from taurex.contributions import AbsorptionContribution
+tm.add_contribution(AbsorptionContribution())
+
+from taurex.contributions import RayleighContribution
+tm.add_contribution(RayleighContribution())
+
+
+tm.build()
+res = tm.model()
+
+### --> Let's plot how it looks like:
+native_grid, rprs, tau, _ = res
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl = 10000/native_grid
+
+
+#---------------------------------------------Jupiter H2O-------------------------------------------
+jupiter1= Planet(planet_mass=1, planet_radius= 1)
+
+chemistry1 = TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
+#chemistry1.addGas(ConstantGas('H2O',mix_ratio=1e-3))
+chemistry1.addGas(ConstantGas('CH4',mix_ratio=1e-4))
+chemistry1.addGas(ConstantGas('CO2',mix_ratio=1e-6))
+chemistry1.addGas(ConstantGas('CO',mix_ratio=1e-2))
+
+tm1 = TransmissionModel(planet=jupiter1,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry1,
+                        star=star,
+                        atm_min_pressure=1e-2, 
+                        atm_max_pressure=1e6,  
+                        nlayers=100)
+
+tm1.add_contribution(AbsorptionContribution())
+
+tm1.add_contribution(RayleighContribution())
+
+
+tm1.build()
+res1 = tm1.model()
+
+### --> Let's plot how it looks like:
+native_grid1, rprs1, tau1, _ = res1
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl1 = 10000/native_grid1
+
+#---------------------------------------------Jupiter CH4-------------------------------------------
+jupiter2= Planet(planet_mass=1, planet_radius= 1)
+
+chemistry2= TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
+chemistry2.addGas(ConstantGas('H2O',mix_ratio=1e-3))
+#chemistry2.addGas(ConstantGas('CH4',mix_ratio=1e-4))
+chemistry2.addGas(ConstantGas('CO2',mix_ratio=1e-6))
+chemistry2.addGas(ConstantGas('CO',mix_ratio=1e-2))
+
+tm2 = TransmissionModel(planet=jupiter2,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry2,
+                        star=star,
+                        atm_min_pressure=1e-2, 
+                        atm_max_pressure=1e6,  
+                        nlayers=100)
+
+tm2.add_contribution(AbsorptionContribution())
+
+tm2.add_contribution(RayleighContribution())
+
+
+tm2.build()
+res2 = tm2.model()
+
+### --> Let's plot how it looks like:
+native_grid2, rprs2, tau2, _ = res2
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl2 = 10000/native_grid2
+
+#---------------------------------------------Jupiter CO2-------------------------------------------
+jupiter3= Planet(planet_mass=1, planet_radius= 1)
+
+
+chemistry3= TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
+chemistry3.addGas(ConstantGas('H2O',mix_ratio=1e-3))
+chemistry3.addGas(ConstantGas('CH4',mix_ratio=1e-4))
+#chemistry3.addGas(ConstantGas('CO2',mix_ratio=1e-6))
+chemistry3.addGas(ConstantGas('CO',mix_ratio=1e-2))
+
+
+tm3 = TransmissionModel(planet=jupiter3,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry3,
+                        star=star,
+                        atm_min_pressure=1e-2,  
+                        atm_max_pressure=1e6,  
+                        nlayers=100)
+
+tm3.add_contribution(AbsorptionContribution())
+
+tm3.add_contribution(RayleighContribution())
+
+
+tm3.build()
+res3 = tm3.model()
+
+### --> Let's plot how it looks like:
+native_grid3, rprs3, tau3, _ = res3
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl3 = 10000/native_grid3
+
+#---------------------------------------------Jupiter CO-------------------------------------------
+jupiter4= Planet(planet_mass=1, planet_radius= 1)
+
+
+chemistry4= TaurexChemistry(fill_gases=['H2', 'He'], ratio=0.17)
+chemistry4.addGas(ConstantGas('H2O',mix_ratio=1e-3))
+chemistry4.addGas(ConstantGas('CH4',mix_ratio=1e-4))
+chemistry4.addGas(ConstantGas('CO2',mix_ratio=1e-6))
+#chemistry4.addGas(ConstantGas('CO',mix_ratio=1e-2))
+
+
+tm4 = TransmissionModel(planet=jupiter4,
+                        temperature_profile=isothermal,
+                        chemistry=chemistry4,
+                        star=star,
+                        atm_min_pressure=1e-2, 
+                        atm_max_pressure=1e6,  
+                        nlayers=100)
+
+tm4.add_contribution(AbsorptionContribution())
+
+tm4.add_contribution(RayleighContribution())
+
+
+tm4.build()
+res4 = tm4.model()
+
+### --> Let's plot how it looks like:
+native_grid4, rprs4, tau4, _ = res4
+### native grid is in wavenumber by convention. But since I like to work in wavelengths I can convert it.
+native_grid_wl4 = 10000/native_grid4
+
+
+#plot de superposition--------------------------------------------------------------------------------------------------------------------------
+fig, ax=plt.subplots()
+
+
+ax.plot(native_grid_wl4,1-(rprs-rprs4)-0.01018,label="CO",alpha=1, color='#00cfcc')
+ax.plot(native_grid_wl1,1-(rprs-rprs1)-0.01027,label="H2O",alpha=1, color='dodgerblue')
+ax.plot(native_grid_wl3,1-(rprs-rprs3)-0.01038,label="CO2",alpha=1, color='mediumslateblue')
+ax.plot(native_grid_wl2,1-(rprs-rprs2)-0.01048,label="CH4",alpha=1, color='darkviolet')
+ax.plot(native_grid_wl,1-rprs,label="H2O+CH4+CO2+CO+N2",alpha=1, color='violet')
+
+ax.set_xlabel('Wavelength ($\mu$m)', fontsize = 15)
+ax.set_ylabel('Transmittance', fontsize = 15)
+ax.set_xlim(0.5, 10)
+
+ax.legend(prop={'size': 13})
+plt.xticks(fontsize = 15)
+plt.yticks(fontsize = 15)
+plt.show()
+
+
